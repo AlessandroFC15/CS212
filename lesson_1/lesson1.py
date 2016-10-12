@@ -28,44 +28,74 @@ cards = {'2' : 2,
          'A' : 14}
 
 
-def poker(hands):
+def get_value_from_card(card):
     global cards
 
-    hands_ranks = {}
+    if card in cards:
+        return cards[card]
 
+
+def poker(hands):
     """Return the best hand: poker([hand, ...]) => hand"""
-    # 1st step => Calculate rankings for each hand
-    for i in range(0, len(hands)):
-        hand = hands[i]
+    return max(hands, key=compute_rank)
 
-        if is_royal_flush(hand):
-            hands_ranks[i] = 1
-        elif is_straight_flush(hand, cards):
-            hands_ranks[i] = 2
-        elif is_n_kind(4, hand):
-            hands_ranks[i] = 3
-        elif is_full_house(hand):
-            hands_ranks[i] = 4
-        elif is_flush(hand):
-            hands_ranks[i] = 5
-        elif is_straight(hand):
-            hands_ranks[i] = 6
-        elif is_n_kind(3, hand):
-            hands_ranks[i] = 7
-        elif is_two_pair(hand):
-            hands_ranks[i] = 8
-        elif is_n_kind(2, hand):
-            hands_ranks[i] = 9
-        # elif is_high_card(hand):
-        #     print('HighCard')
-        else:
-            hands_ranks[i] = 10
 
-    highest_ranked_card_index = min(hands_ranks.keys(), key=(lambda key: hands_ranks[key]))
+def compute_rank(hand):
+    if is_royal_flush(hand):
+        return 10,
+    elif is_straight_flush(hand):
+        straight_flush_rank = get_value_from_card(highest_card_in_card(hand))
+        return 9, straight_flush_rank
+    elif is_n_kind(4, hand):
+        """Each four of a kind is ranked first by the rank of its quadruplet, and then by the rank of its kicker."""
+        quadruplet_rank = get_quadruplet_rank(hand)
+        kicker_rank = get_kicker_rank(hand)
 
-    return hands[highest_ranked_card_index]
+        return 8, quadruplet_rank, kicker_rank
+    elif is_full_house(hand):
+        """If two or more players have a full house then the player with the best three of a kind wins. If those are
+        the same then the player with the best pair wins."""
 
-    # 2nd step => Return the highest one
+        three_of_kind_rank = get_value_from_card(get_card_with_n_ocurrences(hand, 3))
+        pair_rank = get_n_highest_side_card_from_3_kind(hand, 1)
+
+        return 7, three_of_kind_rank, pair_rank
+    elif is_flush(hand):
+        """If two of more players share a flush then the player with the highest card (all the way to the fifth card
+        if necessary) in the flush wins."""
+        cards = [get_value_from_card(card) for card in get_all_numbers_from_hand(hand)]
+
+        cards.sort(reverse=True)
+
+        return 6, cards[0], cards[1], cards[2], cards[3], cards[4]
+    elif is_straight(hand):
+        """In the event of a tie: Highest ranking card at the top of the sequence wins."""
+        return 5, get_value_from_card(highest_card_in_card(hand))
+    elif is_n_kind(3, hand):
+        """In the event of a tie: Highest ranking three of a kind wins. In community card games where players have the
+        same three of a kind, the highest side card, and if necessary, the second-highest side card wins."""
+        triplet_rank = get_value_from_card(get_card_with_n_ocurrences(hand, 3))
+        highest_side_card = get_n_highest_side_card_from_3_kind(hand, 1)
+        second_highest_side_card = get_n_highest_side_card_from_3_kind(hand, 2)
+
+        return 4, triplet_rank, get_value_from_card(highest_side_card), get_value_from_card(second_highest_side_card)
+    elif is_two_pair(hand):
+        """In the event of a tie: Highest pair wins. If players have the same highest pair, highest second pair wins.
+        If both players have two identical pairs, highest side card wins."""
+        ocurrences = get_number_ocurrences_cards(hand)
+
+        pairs = [card for card in ocurrences if ocurrences[card] == 2]
+        pairs.sort(key=get_value_from_card, reverse=True)
+
+        highest_pair = get_value_from_card(pairs[0])
+        second_highest_pair = get_value_from_card(pairs[1])
+        side_card = get_value_from_card([card for card in ocurrences if ocurrences[card] == 1][0])
+
+        return 3, highest_pair, second_highest_pair, side_card
+    elif is_n_kind(2, hand):
+        return 2,
+    else:
+        return 1,
 
 
 def is_royal_flush(hand):
@@ -74,7 +104,7 @@ def is_royal_flush(hand):
         and contains_card('A', hand) and get_number_of_different_suits(hand) == 1
 
 
-def is_straight_flush(hand, cards):
+def is_straight_flush(hand):
     return is_flush(hand) and is_straight(hand)
 
 
@@ -139,11 +169,52 @@ def get_number_ocurrences_cards(hand):
 
     return ocurrences
 
+
+# Helpers
+
+
+def highest_card_in_card(hand):
+    return max([x[0] for x in hand], key=get_value_from_card)
+
+
+def get_card_with_n_ocurrences(hand, times):
+    ocurrences = get_number_ocurrences_cards(hand)
+
+    for card in ocurrences:
+        if ocurrences[card] == times:
+            return card
+
+
+def get_quadruplet_rank(hand):
+    return get_value_from_card(get_card_with_n_ocurrences(hand, 4))
+
+
+def get_kicker_rank(hand):
+    return get_value_from_card(get_card_with_n_ocurrences(hand, 1))
+
+
+def get_n_highest_side_card_from_3_kind(hand, n):
+    ocurrences = get_number_ocurrences_cards(hand)
+
+    side_cards = [card for card in ocurrences if ocurrences[card] != 3]
+
+    if len(side_cards) != 2:
+        print('Hand was not a 3-kind!')
+        return
+
+    side_cards.sort(key=get_value_from_card)
+
+    return side_cards[len(side_cards) - n]
+
 royal_flush_hand = [('J', 'D'), ('10', 'D'), ('Q', 'D'), ('K', 'D'), ('A', 'D')]
 same_suit_hand = [('2', 'D'), ('5', 'D'), ('Q', 'D'), ('7', 'D'), ('3', 'D')]
 straight_flush_hand = [('5', 'S'), ('6', 'S'), ('7', 'S'), ('8', 'S'), ('9', 'S')]
 straight_flush_hand_2 = [('6', 'C'), ('5', 'C'), ('4', 'C'), ('3', 'C'), ('2', 'C')]
-four_kind = [('6', 'D'), ('6', 'C'), ('6', 'S'), ('6', 'C'), ('2', 'H')]
+straight_flush_hand_3 = [('9', 'S'), ('10', 'S'), ('J', 'S'), ('Q', 'S'), ('K', 'S')]
+four_kind = [('6', 'D'), ('6', 'C'), ('6', 'S'), ('6', 'C'), ('3', 'H')]
+four_kind_2 = [('6', 'D'), ('6', 'C'), ('6', 'S'), ('6', 'C'), ('2', 'H')]
+four_kind_3 = [('9', 'D'), ('9', 'C'), ('9', 'S'), ('9', 'C'), ('2', 'H')]
+three_kind = [('9', 'D'), ('9', 'C'), ('9', 'S'), ('8', 'C'), ('2', 'H')]
 
 # Full-house
 full_house = [('J', 'D'), ('J', 'C'), ('J', 'S'), ('2', 'C'), ('2', 'H')]
@@ -155,6 +226,6 @@ flush = [('5', 'H'), ('8', 'H'), ('10', 'H'), ('J', 'H'), ('A', 'H')]
 # 2-Pair
 two_pair = [('4', 'h'), ('7', 'H'), ('7', 'D'), ('J', 'C'), ('J', 'H')]
 
-hands = [royal_flush_hand, flush, full_house]
+hands = [four_kind_2, four_kind, four_kind_3]
 
-print(poker(hands))
+# print(poker(hands))
