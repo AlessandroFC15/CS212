@@ -43,7 +43,7 @@ def poker(hands):
 def compute_rank(hand):
     if is_royal_flush(hand):
         return 10,
-    elif is_straight_flush(hand):
+    elif is_flush(hand) and is_straight(hand):
         straight_flush_rank = get_value_from_card(highest_card_in_card(hand))
         return 9, straight_flush_rank
     elif is_n_kind(4, hand):
@@ -57,7 +57,7 @@ def compute_rank(hand):
         the same then the player with the best pair wins."""
 
         three_of_kind_rank = get_value_from_card(get_card_with_n_ocurrences(hand, 3))
-        pair_rank = get_n_highest_side_card_from_3_kind(hand, 1)
+        pair_rank = get_value_from_card(get_card_with_n_ocurrences(hand, 2))
 
         return 7, three_of_kind_rank, pair_rank
     elif is_flush(hand):
@@ -93,7 +93,14 @@ def compute_rank(hand):
 
         return 3, highest_pair, second_highest_pair, side_card
     elif is_n_kind(2, hand):
-        return 2,
+        pair_rank = get_value_from_card(get_card_with_n_ocurrences(hand, 2))
+
+        ocurrences = get_number_ocurrences_cards(hand)
+
+        remaining_cards = list(map(get_value_from_card, [card for card in ocurrences if ocurrences[card] != 2]))
+        remaining_cards.sort(reverse=True)
+
+        return 2, pair_rank, remaining_cards[0], remaining_cards[1], remaining_cards[2]
     else:
         return 1,
 
@@ -102,10 +109,6 @@ def is_royal_flush(hand):
     """Combination of ten, jack, queen, king, ace, all of the same suit"""
     return contains_card('10', hand) and contains_card('J', hand) and contains_card('Q', hand) and contains_card('K', hand) \
         and contains_card('A', hand) and get_number_of_different_suits(hand) == 1
-
-
-def is_straight_flush(hand):
-    return is_flush(hand) and is_straight(hand)
 
 
 def is_n_kind(n, hand):
