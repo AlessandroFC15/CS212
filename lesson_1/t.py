@@ -1,50 +1,33 @@
 # -----------
 # User Instructions
 #
-# Define a function, two_pair(ranks).
+# Write a function, deal(numhands, n=5, deck), that
+# deals numhands hands with n cards each.
+#
 
-def two_pair(ranks):
-    """If there are two pair, return the two ranks as a
-    tuple: (highest, lowest); otherwise return None."""
-    pairs = []
+import random # this will be a useful library for shuffling
 
-    for rank in ranks:
-        if ranks.count(rank) == 2 and rank not in pairs:
-            pairs.append(rank)
+# This builds a deck of 52 cards. If you are unfamiliar
+# with this notation, check out Andy's supplemental video
+# on list comprehensions (you can find the link in the
+# Instructor Comments box below).
 
-    if len(pairs) == 2:
-        pairs.sort(reverse=True)
-        return pairs[0], pairs[1]
+mydeck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
 
+def deal(numhands, n=5, deck=mydeck):
+    hands = []
 
-def kind(n, ranks):
-    """Return the first rank that this hand has exactly n of.
-    Return None if there is no n-of-a-kind in the hand."""
-    for r in ranks:
-        if ranks.count(r) == n: return r
-    return None
+    for i in range(numhands):
+        hand = []
 
+        for i in range(n):
+            hand.append(random.choice(deck))
 
-def test():
-    "Test cases for the functions in poker program."
-    sf = "6C 7C 8C 9C TC".split()  # Straight Flush
-    fk = "9D 9H 9S 9C 7D".split()  # Four of a Kind
-    fh = "TD TC TH 7C 7D".split()  # Full House
-    tp = "TD 9H TH 7C 3S".split()  # Two Pair
-    fkranks = card_ranks(fk)
-    tpranks = card_ranks(tp)
-    assert kind(4, fkranks) == 9
-    assert kind(3, fkranks) == None
-    assert kind(2, fkranks) == None
-    assert kind(1, fkranks) == 7
-    return 'tests pass'
+        hands.append(hand)
 
 
-def card_ranks(hand):
-    "Return a list of the ranks, sorted with higher first."
-    ranks = ['--23456789TJQKA'.index(r) for r, s in hand]
-    ranks.sort(reverse=True)
-    return ranks
+    return hands
 
 
-print(test())
+
+deal(5)

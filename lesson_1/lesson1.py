@@ -37,7 +37,9 @@ def get_value_from_card(card):
 
 def poker(hands):
     """Return the best hand: poker([hand, ...]) => hand"""
-    return max(hands, key=compute_rank)
+    return  max(hands, key=compute_rank)
+
+
 
 
 def compute_rank(hand):
