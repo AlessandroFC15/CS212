@@ -1,0 +1,7 @@
++ LESSONS EXTRACTED FROM LESSON 1
+    > Have a better understanding of the big picture, in order to improve reusability of functions.
+
+    > Refactor code looking for similar patterns.
+
+    > If it looks overcomplicated, that's because it probably is. Look for the easy way, the easy path.
+        - Understand exactly what you are trying to accomplish and if it there is a better way to do it.
