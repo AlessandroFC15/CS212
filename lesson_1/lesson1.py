@@ -48,8 +48,8 @@ def compute_rank(hand):
         return 9, straight_flush_rank
     elif is_n_kind(4, hand):
         """Each four of a kind is ranked first by the rank of its quadruplet, and then by the rank of its kicker."""
-        quadruplet_rank = get_quadruplet_rank(hand)
-        kicker_rank = get_kicker_rank(hand)
+        quadruplet_rank = get_value_from_card(get_card_with_n_ocurrences(hand, 4))
+        kicker_rank = get_value_from_card(get_card_with_n_ocurrences(hand, 1))
 
         return 8, quadruplet_rank, kicker_rank
     elif is_full_house(hand):
@@ -102,7 +102,10 @@ def compute_rank(hand):
 
         return 2, pair_rank, remaining_cards[0], remaining_cards[1], remaining_cards[2]
     else:
-        return 1,
+        cards = list(map(get_value_from_card, get_all_numbers_from_hand(hand)))
+        cards.sort(reverse=True)
+
+        return 1, cards[0], cards[1], cards[2], cards[3], cards[4]
 
 
 def is_royal_flush(hand):
@@ -186,14 +189,6 @@ def get_card_with_n_ocurrences(hand, times):
     for card in ocurrences:
         if ocurrences[card] == times:
             return card
-
-
-def get_quadruplet_rank(hand):
-    return get_value_from_card(get_card_with_n_ocurrences(hand, 4))
-
-
-def get_kicker_rank(hand):
-    return get_value_from_card(get_card_with_n_ocurrences(hand, 1))
 
 
 def get_n_highest_side_card_from_3_kind(hand, n):
