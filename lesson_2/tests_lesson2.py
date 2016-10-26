@@ -2,7 +2,7 @@ import unittest
 from lesson_2 import main
 
 class TestLesson2(unittest.TestCase):
-    houses = main.get_solution_zebra_puzzle()
+    houses = main.get_full_solution_zebra_puzzle()
 
     def test_rules(self):
         self.assertTrue(self.test_rule_1())
@@ -118,7 +118,8 @@ class TestLesson2(unittest.TestCase):
         for house_number, data in self.houses.items():
             if data['smokes'] == 'KOLLS':
                 house_number_kools = house_number
-            elif data['pet'] == 'HORSE':
+
+            if data['pet'] == 'HORSE':
                 house_number_horse = house_number
 
         return house_number_kools in [house_number_horse + 1, house_number_horse - 1]
@@ -154,27 +155,3 @@ class TestLesson2(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-
-                    # assert  == ''
-                    #
-                    # assert houses[spain]['pet'] == 'DOG'
-                    # #
-                    # assert houses[coffee]['color'] == 'GREEN'
-                    # #
-                    # assert houses[ukraine]['drinks'] == 'TEA'
-                    # #
-                    # assert green - 1 == ivory
-                    # # 6.
-                    # assert houses[old_gold]['pet'] == 'SNAILS'
-                    # # 7.
-                    # assert houses[kolls]['color'] == 'YELLOW'
-                    # # 8.
-                    # assert houses[3]['drinks'] == 'MILK'
-                    # # 9.
-                    # assert houses[1]['nation'] == 'NORWAY'
-                    #
-                    # # The Lucky Strike smoker drinks orange juice.
-                    # assert houses[lucky_striker]['drinks'] == 'ORANGE JUICE'
-                    # # The Japanese smokes Parliaments.
-                    # assert houses[japan]['smokes'] == 'parliaments'
