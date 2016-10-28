@@ -80,7 +80,6 @@ def get_full_solution_zebra_puzzle():
 
                         return houses
 
-
 def get_zebra_and_water_house_numbers():
     """ Returns a dictionary like the following
 
